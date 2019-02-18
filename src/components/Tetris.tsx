@@ -1,9 +1,11 @@
 import React from 'react';
-import * as styles from './Tetris.scss';
+import Board from './Board';
+import * as styles from './Tetris.module.scss';
 
 const Tetris = () => (
   <div className={styles.container}>
-    <h1>Tetris</h1>
+    <h1 className={styles.title}>Tetris</h1>
+    <Board width={10} height={20} />
   </div>
 );
 

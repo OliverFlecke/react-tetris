@@ -1,0 +1,35 @@
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.gridContainer {
+  position: absolute;
+  left: -15vw;
+  display: grid;
+  grid-template-columns: repeat(10, 3vw);
+}
+
+%cell {
+  min-width: 10px;
+  $size: 3vw;
+  width: $size;
+  height: $size;
+}
+
+.visibleCell {
+  @extend %cell;
+  background: #555;
+  border: 1px solid white;
+}
+
+.hiddenCell {
+  @extend %cell;
+  border: 1px solid transparent;
+}
+
+.activeCell {
+  @extend %cell;
+  border: 1px solid black;
+}
