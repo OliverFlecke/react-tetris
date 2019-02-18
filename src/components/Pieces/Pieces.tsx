@@ -1,14 +1,17 @@
+import { Color } from 'csstype';
 import React from 'react';
 import * as boardStyles from '../Board.module.scss';
-import AbstractPiece from './AbstractPiece';
 import * as styles from './Pieces.module.scss';
 
 interface PieceProps {
-  piece: AbstractPiece;
+  column: number;
+  row: number;
+  color: Color;
+  direction: 0 | 1 | 2 | 3;
 }
 
 const Piece = (props: PieceProps) => {
-  return <OPieceComponent piece={props.piece} />;
+  return <OPieceComponent {...props} />;
 };
 
 const OPieceComponent = (props: PieceProps) => {
@@ -16,15 +19,14 @@ const OPieceComponent = (props: PieceProps) => {
     <div
       className={styles.OPiece}
       style={{
-        gridColumnStart: props.piece.position.column,
-        gridRowStart: props.piece.position.row,
-        backgroundColor: props.piece.color,
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gridTemplateRows: '1fr 1fr',
+        gridColumnStart: props.column,
+        gridRowStart: props.row,
+        backgroundColor: props.color,
       }}
     >
-      {new Array(4).fill(<div className={boardStyles.activeCell} />)}
+      {new Array(4).fill(null).map((x, index) => (
+        <div key={index} className={boardStyles.activeCell} />
+      ))}
     </div>
   );
 };
