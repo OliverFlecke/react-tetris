@@ -3,6 +3,7 @@ import * as styles from './Board.module.scss';
 import AbstractPiece from './Pieces/AbstractPiece';
 import Color from './Pieces/Color';
 import IPiece from './Pieces/IPiece';
+import JPiece from './Pieces/JPiece';
 import Piece from './Pieces/Pieces';
 
 export type Direction = 'Left' | 'Right';
@@ -86,7 +87,7 @@ const Overlay = (props: OverlayProps) => {
 
   const [row, setRow] = useState(initialRow);
   const [column, setColumn] = useState(initialColumn);
-  const [piece, setPiece] = useState<AbstractPiece | null>(new IPiece());
+  const [piece, setPiece] = useState<AbstractPiece | null>(getRandomPiece());
 
   useEffect(() => {
     if (piece !== null) {
@@ -94,7 +95,7 @@ const Overlay = (props: OverlayProps) => {
 
       return () => clearInterval(id);
     }
-  }, [row]);
+  }, [row, column]);
 
   const newPiece = () => {
     props.storePiece(piece, column, row);
@@ -109,7 +110,7 @@ const Overlay = (props: OverlayProps) => {
       clearInterval(id);
       setPiece(null);
     } else {
-      setPiece(new IPiece());
+      setPiece(getRandomPiece());
     }
   };
 
@@ -117,7 +118,6 @@ const Overlay = (props: OverlayProps) => {
     if (piece === null) {
       return;
     }
-    console.debug(column);
 
     if (piece.canMoveDown(props.grid, column, row)) {
       setRow(row + amount);
@@ -208,6 +208,10 @@ function checkRows(grid: GridState, width: number): GridState {
   }, []);
 
   return newGrid;
+}
+
+function getRandomPiece(): AbstractPiece {
+  return new JPiece();
 }
 
 export default Board;

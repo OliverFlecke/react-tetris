@@ -1,9 +1,14 @@
+@import '../../styles/Color.scss';
+
 %Piece {
   width: 100%;
   height: 100%;
-  border: 1px solid black;
   display: grid;
   z-index: 2;
+}
+
+%cell {
+  border: 1px solid black;
 }
 
 .OPiece {
@@ -11,6 +16,11 @@
   grid-column-end: span 2;
   grid-row-end: span 2;
   grid-template: 1fr 1fr / 1fr 1fr;
+
+  div {
+    background-color: $navyBlue;
+    @extend %cell;
+  }
 }
 
 .IPieceHorizontal {
@@ -18,6 +28,11 @@
   grid-column-end: span 4;
   grid-row-end: span 1;
   grid-template: 1fr / 1fr 1fr 1fr 1fr;
+
+  div {
+    @extend %cell;
+    background-color: $maroon;
+  }
 }
 
 .IPieceVertical {
@@ -25,4 +40,35 @@
   grid-column-end: span 1;
   grid-row-end: span 4;
   grid-template: 1fr 1fr 1fr 1fr / 1fr;
+
+  div {
+    @extend %cell;
+    background-color: $maroon;
+  }
+}
+
+.JPieceHorizontal {
+  @extend %Piece;
+  grid-column-end: span 3;
+  grid-row-end: span 1;
+  grid-template: 1fr 1fr / 1fr 1fr 1fr;
+
+  div {
+    @extend %cell;
+    background-color: $silver;
+    justify-content: end;
+  }
+}
+
+.JPieceVertical {
+  @extend %Piece;
+  grid-column-end: span 1;
+  grid-row-end: span 3;
+  grid-template: 1fr 1fr 1fr / 1fr 1fr;
+
+  div {
+    @extend %cell;
+    background-color: $silver;
+    justify-content: end;
+  }
 }
