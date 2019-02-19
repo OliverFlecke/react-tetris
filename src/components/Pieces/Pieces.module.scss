@@ -12,3 +12,17 @@
   grid-row-end: span 2;
   grid-template: 1fr 1fr / 1fr 1fr;
 }
+
+.IPieceHorizontal {
+  @extend %Piece;
+  grid-column-end: span 4;
+  grid-row-end: span 1;
+  grid-template: 1fr / 1fr 1fr 1fr 1fr;
+}
+
+.IPieceVertical {
+  @extend %Piece;
+  grid-column-end: span 1;
+  grid-row-end: span 4;
+  grid-template: 1fr 1fr 1fr 1fr / 1fr;
+}

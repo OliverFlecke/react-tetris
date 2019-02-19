@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import * as styles from './Board.module.scss';
 import AbstractPiece from './Pieces/AbstractPiece';
 import Color from './Pieces/Color';
-import OPiece from './Pieces/OPiece';
+import IPiece from './Pieces/IPiece';
 import Piece from './Pieces/Pieces';
+
+export type Direction = 'Left' | 'Right';
 
 const speed = 200;
 
@@ -84,7 +86,7 @@ const Overlay = (props: OverlayProps) => {
 
   const [row, setRow] = useState(initialRow);
   const [column, setColumn] = useState(initialColumn);
-  const [piece, setPiece] = useState<AbstractPiece | null>(new OPiece());
+  const [piece, setPiece] = useState<AbstractPiece | null>(new IPiece());
 
   useEffect(() => {
     if (piece !== null) {
@@ -107,7 +109,7 @@ const Overlay = (props: OverlayProps) => {
       clearInterval(id);
       setPiece(null);
     } else {
-      setPiece(new OPiece());
+      setPiece(new IPiece());
     }
   };
 
@@ -115,15 +117,17 @@ const Overlay = (props: OverlayProps) => {
     if (piece === null) {
       return;
     }
+    console.debug(column);
 
     if (piece.canMoveDown(props.grid, column, row)) {
       setRow(row + amount);
     } else {
+      console.debug('Cant move down');
       setTimeout(() => newPiece(), speed / 2);
     }
   };
 
-  const moveSideways = (direction: 'Left' | 'Right') => {
+  const moveSideways = (direction: Direction) => {
     if (piece === null) {
       return;
     }
@@ -147,8 +151,9 @@ const Overlay = (props: OverlayProps) => {
     const keyDownHandler = (event: KeyboardEvent) => {
       switch (event.key) {
         case 'ArrowUp':
-          // Rotate
-          console.debug('Rotate');
+          if (piece) {
+            piece.rotateClockwise(props.grid, column, row, setColumn);
+          }
           break;
         case 'ArrowDown':
           moveDown(1);
@@ -179,7 +184,7 @@ const Overlay = (props: OverlayProps) => {
         <div key={index} className={styles.hiddenCell} />
       ))}
       {piece ? (
-        <Piece row={row} column={column} direction={0} color={piece.color} />
+        <Piece row={row} column={column} direction={0} piece={piece} />
       ) : null}
     </div>
   );

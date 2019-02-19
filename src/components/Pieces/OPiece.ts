@@ -4,7 +4,7 @@ import Color from './Color';
 
 export default class OPiece extends AbstractPiece {
   public constructor() {
-    super(Color.Cyan);
+    super(Color.NavyBlue);
     this.width = 2;
   }
 
@@ -21,7 +21,7 @@ export default class OPiece extends AbstractPiece {
   }
 
   public storeOnGrid(grid: GridState, column: number, row: number): GridState {
-    const newGrid = grid.slice(0);
+    const newGrid = grid.slice();
 
     newGrid[row][column] = this.color;
     newGrid[row - 1][column] = this.color;
@@ -45,5 +45,13 @@ export default class OPiece extends AbstractPiece {
     }
 
     return true;
+  }
+
+  public rotateClockwise() {
+    this.orientation = this.orientation;
+  }
+
+  public rotateCounterClockwise() {
+    this.orientation = this.orientation;
   }
 }
