@@ -1,6 +1,6 @@
 enum Color {
   Red = 'red',
-  Cyan = 'Cyan',
+  Cyan = 'cyan',
 }
 
 export default Color;

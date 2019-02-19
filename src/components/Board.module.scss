@@ -20,16 +20,18 @@
 
 .visibleCell {
   @extend %cell;
-  background: #555;
+  z-index: 1;
   border: 1px solid white;
 }
 
 .hiddenCell {
   @extend %cell;
+  background-color: transparent;
   border: 1px solid transparent;
 }
 
 .activeCell {
   @extend %cell;
   border: 1px solid black;
+  z-index: 2;
 }

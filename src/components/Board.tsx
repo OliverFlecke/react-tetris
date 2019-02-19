@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import * as styles from './Board.module.scss';
+import AbstractPiece from './Pieces/AbstractPiece';
+import Color from './Pieces/Color';
 import OPiece from './Pieces/OPiece';
 import Piece from './Pieces/Pieces';
 
-const speed = 1000;
+const speed = 200;
 
 interface BoardProps {
   width: number;
@@ -12,58 +14,153 @@ interface BoardProps {
 
 const Board = (props: BoardProps) => {
   const [grid, setGrid] = useState(
-    new Array(props.width)
+    new Array(props.height)
       .fill(null)
-      .map(() => new Array(props.height).fill(null)),
+      .map(() => new Array(props.width).fill(null)),
   );
+
+  const storePiece = (
+    piece: AbstractPiece | null,
+    column: number,
+    row: number,
+  ) => {
+    if (piece === null) {
+      return;
+    }
+
+    setGrid(checkRows(piece.storeOnGrid(grid, column, row), props.width));
+  };
 
   return (
     <div className={styles.container}>
       <Grid grid={grid} />
-      <Overlay {...props} />
+      <Overlay {...props} grid={grid} storePiece={storePiece} />
     </div>
   );
 };
 
+export type GridState = Array<Array<Color | null>>;
+
 interface GridProps {
-  grid: any[][];
+  grid: GridState;
 }
 
-const Grid = (props: GridProps) => (
-  <div className={styles.gridContainer}>
-    {props.grid.map((rowElements: any[], xIndex: number) =>
-      rowElements.map((_: any[], columnIndex: number) => (
-        <div key={`${xIndex} ${columnIndex}`} className={styles.visibleCell} />
-      )),
-    )}
-  </div>
-);
+const Grid = (props: GridProps) => {
+  return (
+    <div className={styles.gridContainer}>
+      {props.grid.map((rowElements: any[], xIndex: number) =>
+        rowElements.map((_: any[], yIndex: number) => {
+          const color = props.grid[xIndex][yIndex];
 
-const Overlay = (props: BoardProps) => {
-  const [row, setRow] = useState(1);
-  const [piece, setPiece] = useState(new OPiece());
-  const [column, setColumn] = useState(props.width / 2);
+          return (
+            <div
+              key={`${xIndex} ${yIndex}`}
+              className={styles.visibleCell}
+              style={{
+                backgroundColor: color ? color : '#555',
+                borderColor: color ? 'black' : 'white',
+              }}
+            />
+          );
+        }),
+      )}
+    </div>
+  );
+};
+
+interface OverlayProps extends BoardProps {
+  storePiece: (
+    piece: AbstractPiece | null,
+    column: number,
+    row: number,
+  ) => void;
+  grid: GridState;
+}
+
+const Overlay = (props: OverlayProps) => {
+  let id: NodeJS.Timeout;
+  const initialRow = 1;
+  const initialColumn = props.width / 2;
+
+  const [row, setRow] = useState(initialRow);
+  const [column, setColumn] = useState(initialColumn);
+  const [piece, setPiece] = useState<AbstractPiece | null>(new OPiece());
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setRow(row + 1);
-    }, speed);
+    if (piece !== null) {
+      id = setInterval(() => moveDown(1), speed);
 
-    return () => clearInterval(id);
+      return () => clearInterval(id);
+    }
   }, [row]);
+
+  const newPiece = () => {
+    props.storePiece(piece, column, row);
+    setRow(initialRow);
+    setColumn(initialColumn);
+
+    if (
+      props.grid[initialRow][initialColumn] !== null ||
+      props.grid[initialRow][initialColumn - 1] !== null
+    ) {
+      console.log('Game over');
+      clearInterval(id);
+      setPiece(null);
+    } else {
+      setPiece(new OPiece());
+    }
+  };
+
+  const moveDown = (amount: number) => {
+    if (piece === null) {
+      return;
+    }
+
+    if (piece.canMoveDown(props.grid, column, row)) {
+      setRow(row + amount);
+    } else {
+      setTimeout(() => newPiece(), speed / 2);
+    }
+  };
+
+  const moveSideways = (direction: 'Left' | 'Right') => {
+    if (piece === null) {
+      return;
+    }
+
+    if (
+      direction === 'Left' &&
+      column > 1 &&
+      piece.checkLeft(props.grid, column, row)
+    ) {
+      setColumn(column - 1);
+    } else if (
+      direction === 'Right' &&
+      column <= 10 - piece.width &&
+      piece.checkRight(props.grid, column, row)
+    ) {
+      setColumn(column + 1);
+    }
+  };
 
   useEffect(() => {
     const keyDownHandler = (event: KeyboardEvent) => {
-      console.debug(event.key);
       switch (event.key) {
+        case 'ArrowUp':
+          // Rotate
+          console.debug('Rotate');
+          break;
         case 'ArrowDown':
-          setRow(row + 1);
+          moveDown(1);
           break;
         case 'ArrowRight':
-          setColumn(column + 1);
+          moveSideways('Right');
           break;
         case 'ArrowLeft':
-          setColumn(column - 1);
+          moveSideways('Left');
+          break;
+        case ' ':
+          // moveDown(20);
           break;
 
         default:
@@ -81,9 +178,31 @@ const Overlay = (props: BoardProps) => {
       {new Array(props.width * props.height).fill(null).map((_, index) => (
         <div key={index} className={styles.hiddenCell} />
       ))}
-      <Piece row={row} column={column} direction={0} color={piece.color} />
+      {piece ? (
+        <Piece row={row} column={column} direction={0} color={piece.color} />
+      ) : null}
     </div>
   );
 };
+
+function checkRows(grid: GridState, width: number): GridState {
+  let rowsCleared = 0;
+
+  const newGrid = grid.reduce((rows: GridState, row: Array<Color | null>) => {
+    if (row.every(x => x !== null)) {
+      const newRows = rows.slice();
+      newRows.unshift(new Array(width).fill(null));
+      rowsCleared++;
+
+      return newRows;
+    } else {
+      rows.push(row);
+
+      return rows;
+    }
+  }, []);
+
+  return newGrid;
+}
 
 export default Board;
